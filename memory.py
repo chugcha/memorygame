@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
+
 def play():
     for widget in root.winfo_children():
         widget.destroy()
@@ -25,6 +26,7 @@ def play():
     back = ttk.Button(text="Назад", command=main_page)
     back.pack(expand=True, fill=BOTH, padx=60, pady=5)
 
+
 def rool():
     for widget in root.winfo_children():
         widget.destroy()
@@ -32,6 +34,7 @@ def rool():
     st.pack()
     back = ttk.Button(text="Назад", command=main_page)
     back.pack(expand=True, fill=BOTH, padx=60, pady=200)
+
 
 def win():
     for widget in root.winfo_children():
@@ -41,8 +44,10 @@ def win():
     back = ttk.Button(text="Назад", command=main_page)
     back.pack(expand=True, fill=BOTH, padx=60, pady=200)
 
+
 def out():
     root.destroy()
+
 
 def main_page():
     for widget in root.winfo_children():
@@ -57,6 +62,116 @@ def main_page():
     record.pack(expand=True, fill=BOTH, padx=60, pady=20)
     ex = ttk.Button(text="Выход", command=out)
     ex.pack(expand=True, fill=BOTH, padx=60, pady=20)
+
+
+def playing_field(root):
+    for widget in root.winfo_children():
+        widget.destroy()
+    root.geometry("600x500+300+50")
+    root.resizable(False, False)
+
+    # чекнуть пути потом
+    card_1 = PhotoImage(file='photos/build/build_1.png')
+    card_2 = PhotoImage(file='photos/build/build_2.png')
+    card_3 = PhotoImage(file='photos/build/build_3.png')
+    card_4 = PhotoImage(file='photos/build/build_4.png')
+    card_5 = PhotoImage(file='photos/build/build_5.png')
+    card_6 = PhotoImage(file='photos/build/build_6.png')
+    card_7 = PhotoImage(file='photos/build/build_7.png')
+    card_8 = PhotoImage(file='photos/build/build_8.png')
+    button_image = PhotoImage(file='photos/button image.png')
+
+    list_images = [card_1, card_1, card_2, card_2, card_3, card_3, card_4, card_4,
+                   card_5, card_5, card_6, card_6, card_7, card_7, card_8, card_8]
+
+    list_closed_cards = []
+    num_opened_cards = 0
+    num_steps = 0
+    first_opened = None
+    second_opened = None
+
+    label = Label(root, text=f'Количество ходов: {num_steps}')
+    label.pack(side=BOTTOM, pady=10)
+
+    game_pole = Frame(root)
+    game_pole.pack(expand=True, fill=BOTH, padx=10, pady=10)
+
+    for i in range(4):
+        game_pole.grid_rowconfigure(i, weight=1)
+    for i in range(6):
+        game_pole.grid_columnconfigure(i, weight=1)
+
+    for i in range(4):
+        for j in range(4):
+            button = Button(
+                game_pole,
+                image=button_image,
+                background="#667E91",
+            )
+            button.grid(
+                row=j,
+                column=i,
+                sticky="nsew",
+                padx=2,
+                pady=2,
+            )
+            button.open = False
+            list_closed_cards.append(button)
+
+            for j in range(5, 6):
+                if i == 0 or i == 1:
+                    if i == 0:
+                        lbl_text = 'время'
+                    if i == 1:
+                        lbl_text = 'лучшее время:'
+                    label = Label(game_pole, text=lbl_text, background="#FFBBB9")
+                    label.grid(row=i, сolumn=j - 1, columnspan=2, padx=10, pady=20, sticky='nsew')
+            else:
+                if i == 2:
+                    but_text = 'пауза'
+                elif i == 3:
+                    but_text = 'домой'
+                button = Button(game_pole, text=but_text, background="#FFBBB9")
+                button.grid(row=i, column=j - 1, columnspan=2, padx=10, pady=20, sticky='nsew')
+
+    for card in list_closed_cards:
+        img = random.choice(list_images)
+        card.image = img
+        list_images.remove(img)
+
+
+def pair():
+    pass
+
+
+def not_pair():
+    pass
+
+
+def open_card(event):
+    global num_opened_cards, first_opened, second_opened, num_steps
+    if num_opened_cards == 0:
+        event.widget['image'] = event.widget.image
+        num_steps += 1
+        event.widget.open = True
+        num_opened_cards = 1
+        first_opened = event.widget
+        list_closed_cards.remove(first_opened)
+    elif num_opened_cards == 1 and not event.widget.open:
+        event.widget.open = True
+        event.widget['image'] = event.widget.image
+        num_steps += 1
+        if event.widget.image == first_opened.image:
+            second_opened = event.widget
+            list_closed_cards.remove(second_opened)
+            root.after(500, pair)
+        else:
+            list_closed_cards.append(first_opened)
+            root.after(500, not_pair)
+        num_opened_cards = 0
+
+
+root.bind('<Button-1>', open_card)
 
 root = Tk()
 root.title("Memory")
