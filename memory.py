@@ -87,11 +87,14 @@ def playing_field(root):
     list_closed_cards = []
     num_opened_cards = 0
     num_steps = 0
+    num_win = 0
     first_opened = None
     second_opened = None
 
     label = Label(root, text=f'Количество ходов: {num_steps}')
     label.pack(side=BOTTOM, pady=10)
+    label_kmoves = Label(text=f'Количество ходов: {num_steps}', font=('Arial', 12))
+    label_kmoves.pack(side=BOTTOM, pady=10)
 
     game_pole = Frame(root)
     game_pole.pack(expand=True, fill=BOTH, padx=10, pady=10)
@@ -140,35 +143,89 @@ def playing_field(root):
         list_images.remove(img)
 
 
-def pair():
-    pass
+second_opened = ''
 
+#label_2 = Label(background='white')
+#label_2.place(relx=.5, rely=.5, anchor="center")
+#label_2.pack(side=BOTTOM, pady=10)
+
+def pair():
+    global list_closed_cards, first_opened, second_opened, num_win, label_2
+    label_2.config(text='Пара!', font=('Arial', 16), foreground='red')
+
+    def get_rgb(rgb): # это для подобранного цвета
+        return "#%02x%02x%02x" % rgb
+
+    def closer():
+        first_opened.config(
+            image='',
+            state="disabled",
+            background=get_rgb((174, 210, 227)), # цвет
+            activebackground=get_rgb((174, 210, 227))
+        )
+        second_opened.config(
+            image='',
+            state="disabled",
+            background=get_rgb((174, 210, 227)),
+            activebackground=get_rgb((174, 210, 227))
+        )
+        first_opened.found = True
+        second_opened.found = True
+        global num_win
+        num_win += 1
+        window.after(1500, lambda: label_2.config(text=''))
+
+        if num_win == 8:
+            label_win = Label(
+                window,
+                text='Вы нашли все пары!',
+                font=('Arial', 16),
+                bg="white"
+            )
+            label_win.place(relx=0.5, rely=0.5, anchor="center")
+
+    window.after(100, closer)
 
 def not_pair():
-    pass
+    global list_closed_cards, label_2, num_win
+    for i in list_closed_cards:
+        i['image'] = button_image # чтобы не менялось
+        i.open = False
+    label_2.config(text='Не пара!', font=('Arial', 16), foreground='red')
+    window.after(1500, lambda: label_2.config(text=''))
 
 
 def open_card(event):
-    global num_opened_cards, first_opened, second_opened, num_steps
-    if num_opened_cards == 0:
-        event.widget['image'] = event.widget.image
-        num_steps += 1
-        event.widget.open = True
-        num_opened_cards = 1
-        first_opened = event.widget
-        list_closed_cards.remove(first_opened)
-    elif num_opened_cards == 1 and not event.widget.open:
-        event.widget.open = True
-        event.widget['image'] = event.widget.image
-        num_steps += 1
-        if event.widget.image == first_opened.image:
-            second_opened = event.widget
-            list_closed_cards.remove(second_opened)
-            root.after(500, pair)
-        else:
-            list_closed_cards.append(first_opened)
-            root.after(500, not_pair)
-        num_opened_cards = 0
+    global num_opened_cards, first_opened, second_opened, list_closed_cards, list_found_pairs, num_steps
+    if event.widget.open:
+        return
+    try:
+        if num_opened_cards == 0:
+            event.widget['image'] = event.widget.image
+            num_steps += 1
+            label_kmoves.config(text = f'Количество ходов: {num_steps}', font=('Arial', 12))
+            event.widget.open = True
+            num_opened_cards = 1
+            first_opened = event.widget
+            list_closed_cards.remove(first_opened)
+
+        elif num_opened_cards == 1 and event.widget.open == False:
+            if event.widget == first_opened: # чтобы он нажатие 2 раза на одну кнопку воспринимал как 1 раз
+                return
+            event.widget.open = True
+            event.widget['image'] = event.widget.image
+            num_steps += 1
+            label_kmoves.config(text=f'Количество ходов: {num_steps}', font=('Arial', 12))
+            if event.widget['image'] == first_opened['image']:
+                second_opened = event.widget
+                list_closed_cards.remove(second_opened)
+                window.after(500, pair)
+            else:
+                list_closed_cards.append(first_opened)
+                window.after(500, not_pair)
+            num_opened_cards = 0
+    except Exception:
+        pass
 
 
 root.bind('<Button-1>', open_card)
