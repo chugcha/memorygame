@@ -96,8 +96,7 @@ def game(world):
     num_images = random.sample(range(1, len(os.listdir(f'photos/{world}'))+1), 8)
     list_images = []
     for i in num_images:
-        for _ in range(2):
-            list_images.append(ImageTk.PhotoImage(Image.open(f'photos/{world}/{world}_{i}.jpg')))
+        list_images.extend([ImageTk.PhotoImage(Image.open(f'photos/{world}/{world}_{i}.jpg'))]*2)
     button_image = ImageTk.PhotoImage(Image.open('photos/button image.png'))
 
     list_closed_cards = []
@@ -122,7 +121,7 @@ def game(world):
             button = Button(
                 game_pole,
                 image=button_image,
-                background="#667E91",  # был B3E5FC
+                background="#667E91",
             )
             button.grid(
                 row=j,
@@ -193,7 +192,7 @@ def game(world):
         label_2.config(text='Пара!', font=('Arial', 13), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
 
-        def get_rgb(rgb):  # это для подобранного цвета
+        def get_rgb(rgb):
             return "#%02x%02x%02x" % rgb
 
         def closer():
@@ -231,7 +230,7 @@ def game(world):
         global list_closed_cards, label_2, num_win, first_opened, second_opened,\
             num_opened_cards, num_steps, label_kmoves, game_pole
         for i in list_closed_cards:
-            i['image'] = button_image  # чтобы не менялось
+            i['image'] = button_image
             i.open = False
         label_2.config(text='Не пара!', font=('Arial', 13), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
@@ -252,16 +251,14 @@ def game(world):
                 first_opened = event.widget
                 list_closed_cards.remove(first_opened)
 
-            elif num_opened_cards == 1 and event.widget.open == False:
-                if event.widget == first_opened:  # чтобы он нажатие 2 раза на одну кнопку воспринимал как 1 раз
+            elif num_opened_cards == 1 and event.widget.open is False:
+                if event.widget == first_opened:
                     return
                 event.widget.open = True
                 event.widget['image'] = event.widget.image
                 num_steps += 1
                 label_kmoves.config(text=f'Количество ходов: {num_steps}', font=('Arial', 12))
-                hits = [{"1", "2"}, {"3", "4"}, {"5", "6"}, {"7", "8"}, {"9", "10"},
-                        {"11", "12"}, {"13", "14"}, {"15", "16"}]
-                if {str(event.widget.image).strip("pyimage"), str(first_opened.image).strip("pyimage")} in hits:
+                if event.widget.image == first_opened.image:
                     second_opened = event.widget
                     list_closed_cards.remove(second_opened)
                     root.after(500, pair)
