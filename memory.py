@@ -4,7 +4,7 @@ from IPython.display import display
 from PIL import ImageTk, Image
 import os
 import random
-
+import time
 
 def play():
     for widget in root.winfo_children():
@@ -23,7 +23,7 @@ def play():
     universe_5.pack(expand=True, fill=BOTH, padx=60, pady=5)
     universe_6 = ttk.Button(text="Марвел", command=lambda: playing_field("marvel"))
     universe_6.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_7 = ttk.Button(text="Символы МФА", command=lambda: playing_field("sounds"))
+    universe_7 = ttk.Button(text="Символы МФА", command=lambda: playing_field("sound"))
     universe_7.pack(expand=True, fill=BOTH, padx=60, pady=5)
     universe_8 = ttk.Button(text="Животные фиклят", command=lambda: playing_field("pet"))
     universe_8.pack(expand=True, fill=BOTH, padx=60, pady=5)
@@ -86,7 +86,7 @@ def playing_field(world):
 
 def game(world):
     global num_opened_cards, list_closed_cards, first_opened, second_opened,\
-        num_win, label_2, num_steps, label_kmoves, root, label_win
+        num_win, label_2, num_steps, label_kmoves, root, label_win, sw
 
     for widget in root.winfo_children():
         widget.destroy()
@@ -138,28 +138,36 @@ def game(world):
         for j in range(5, 6):
             if i == 0 or i == 1:
                 if i == 0:
-                    lbl_text = 'время'
+                    sw = StopWatch(game_pole)
+                    sw.grid(
+                        row=i,
+                        column=j - 1,
+                        columnspan=2,
+                        padx=10,
+                        pady=20,
+                        sticky='nsew'
+                    )
                 if i == 1:
-                    lbl_text = 'лучшее время:'
-                label = Label(
-                    game_pole,
-                    text=lbl_text,
-                    background="#FFBBB9"
-                )
-                label.grid(
-                    row=i,
-                    column=j - 1,
-                    columnspan=2,
-                    padx=10,
-                    pady=20,
-                    sticky='nsew'
-                )
+                    lbl_text = 'ЛУЧШЕЕ ВРЕМЯ:'
+                    label = Label(
+                        game_pole,
+                        text=lbl_text,
+                        background="#FFBBB9",
+                        )
+                    label.grid(
+                        row=i,
+                        column=j - 1,
+                        columnspan=2,
+                        padx=10,
+                        pady=20,
+                        sticky='nsew'
+                    )
             else:
                 if i == 2:
-                    but_text = 'пауза'
+                    but_text = 'ПАУЗА'
                     but_com = pause
                 elif i == 3:
-                    but_text = 'домой'
+                    but_text = 'ДОМОЙ'
                     but_com = main_page
                 button = Button(
                     game_pole,
@@ -186,9 +194,10 @@ def game(world):
     label_2 = Label(root, text='')
     label_2.pack(side=TOP)
 
+    sw.Start()
     def pair():
         global list_closed_cards, first_opened, second_opened, num_win, label_2,\
-            num_opened_cards, num_steps, label_kmoves
+            num_opened_cards, num_steps, label_kmoves, sw
         label_2.config(text='Пара!', font=('Arial', 13), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
 
@@ -196,7 +205,7 @@ def game(world):
             return "#%02x%02x%02x" % rgb
 
         def closer():
-            global first_opened, second_opened, label_win
+            global first_opened, second_opened, label_win, sw
             first_opened.config(
                 image='',
                 state="disabled",
@@ -211,11 +220,12 @@ def game(world):
             )
             first_opened.found = True
             second_opened.found = True
-            global num_win
+            global num_win, sw
             num_win += 1
             root.after(1500, lambda: label_2.config(text=''))
 
             if num_win == 8:
+                sw.Stop()
                 label_win = Label(
                     root,
                     text='Вы нашли все пары!',
@@ -228,7 +238,7 @@ def game(world):
 
     def not_pair():
         global list_closed_cards, label_2, num_win, first_opened, second_opened,\
-            num_opened_cards, num_steps, label_kmoves, game_pole
+            num_opened_cards, num_steps, label_kmoves, game_pole, sw
         for i in list_closed_cards:
             i['image'] = button_image
             i.open = False
@@ -237,7 +247,7 @@ def game(world):
 
     def open_card(event):
         global num_opened_cards, first_opened, second_opened, list_closed_cards, list_found_pairs,\
-            num_steps, label_2, label_kmoves, game_pole, root, widget
+            num_steps, label_2, label_kmoves, game_pole, root, widget, sw
         if event.widget.open:
             return
 
@@ -272,11 +282,58 @@ def game(world):
     root.bind('<Button-1>', open_card)
 
 
-def stopwatch():
-    pass
+class StopWatch(Frame):
+    def __init__(self, parent=None, **kw):
+        Frame.__init__(self, parent, kw)
+        self._start = 0.0
+        self._elapsedtime = 0.0
+        self._running = 0
+        self.timestr = StringVar()
+
+        self.makeWidgets()
+
+    def makeWidgets(self):
+        l = ttk.Label(self, textvariable=self.timestr)
+        self._setTime(self._elapsedtime)
+        l.pack(fill=X, expand=NO, pady=2, padx=2, anchor=CENTER)
+
+    def _update(self):
+        self._elapsedtime = time.time() - self._start
+        self._setTime(self._elapsedtime)
+        self._setTime(self._elapsedtime)
+        self._timer = self.after(50, self._update)
+
+    def _setTime(self, elap):
+        minutes = int(elap / 60)
+        seconds = int(elap - minutes * 60.0)
+        hseconds = int((elap - minutes * 60.0 - seconds) * 100)
+        self.timestr.set('%02d:%02d:%02d' % (minutes, seconds, hseconds))
+
+    def Start(self):
+        if not self._running:
+            self._start = time.time() - self._elapsedtime
+            self._update()
+            self._running = 1
+
+    def Stop(self):
+        if self._running:
+            self.after_cancel(self._timer)
+            self._elapsedtime = time.time() - self._start
+            self._setTime(self._elapsedtime)
+            self._running = 0
+
+    def Reset(self):
+        self._start = time.time()
+        self._elapsedtime = 0.0
+        self._setTime(self._elapsedtime)
 
 
 def pause():
+    global sw, root
+    sw.Stop()
+    pause_button = Button(root, text="ПАУЗА")
+    pause_button.config(font=("Arial", 100, "bold"), command=lambda b=pause_button: [b.destroy(), sw.Start()])
+    pause_button.place(relx=0, rely=0, relwidth=1, relheight=1)
     pass
 
 
