@@ -5,50 +5,69 @@ from PIL import ImageTk, Image
 import os
 import random
 import time
+import textwrap
 
 def play():
     for widget in root.winfo_children():
         widget.destroy()
-    st = Label(text="Выберите вселенную:")
+    st = Label(text="Выберите вселенную:", font=("Arial", 14))
     st.pack()
-    universe_1 = ttk.Button(text="Сооружения", command=lambda: playing_field("build"))
+    style = ttk.Style()
+    style.configure("usual.TButton", font=("Arial", 14))
+    universe_1 = ttk.Button(text="Сооружения", command=lambda: playing_field("build"), style="usual.TButton")
     universe_1.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_2 = ttk.Button(text="Древнегреческие боги", command=lambda: playing_field("gods"))
+    universe_2 = ttk.Button(text="Древнегреческие боги", command=lambda: playing_field("gods"), style="usual.TButton")
     universe_2.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_3 = ttk.Button(text="Властелин колец", command=lambda: playing_field("hobbit"))
+    universe_3 = ttk.Button(text="Властелин колец", command=lambda: playing_field("hobbit"), style="usual.TButton")
     universe_3.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_4 = ttk.Button(text="Гарри Поттер", command=lambda: playing_field("hp"))
+    universe_4 = ttk.Button(text="Гарри Поттер", command=lambda: playing_field("hp"), style="usual.TButton")
     universe_4.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_5 = ttk.Button(text="Корпуса вышки", command=lambda: playing_field("hse"))
+    universe_5 = ttk.Button(text="Корпуса вышки", command=lambda: playing_field("hse"), style="usual.TButton")
     universe_5.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_6 = ttk.Button(text="Марвел", command=lambda: playing_field("marvel"))
+    universe_6 = ttk.Button(text="Марвел", command=lambda: playing_field("marvel"), style="usual.TButton")
     universe_6.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_7 = ttk.Button(text="Символы МФА", command=lambda: playing_field("sound"))
+    universe_7 = ttk.Button(text="Символы МФА", command=lambda: playing_field("sound"), style="usual.TButton")
     universe_7.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_8 = ttk.Button(text="Животные фиклят", command=lambda: playing_field("pet"))
+    universe_8 = ttk.Button(text="Животные фиклят", command=lambda: playing_field("pet"), style="usual.TButton")
     universe_8.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    universe_9 = ttk.Button(text="Brainrot animals", command=lambda: playing_field("br"))
+    universe_9 = ttk.Button(text="Brainrot animals", command=lambda: playing_field("br"), style="usual.TButton")
     universe_9.pack(expand=True, fill=BOTH, padx=60, pady=5)
-    back = ttk.Button(text="Назад", command=main_page)
+    back = ttk.Button(text="Назад", command=main_page, style="usual.TButton")
     back.pack(expand=True, fill=BOTH, padx=60, pady=5)
 
 
 def rule():
     for widget in root.winfo_children():
         widget.destroy()
-    st = Label(text="пупупу все будет")
-    st.pack()
-    back = ttk.Button(text="Назад", command=main_page)
-    back.pack(expand=True, fill=BOTH, padx=60, pady=200)
+    text1 = 'Перед началом игры вам нужно выбрать вселенную, персонажи из которой будут представлены на карточках. После выбора начнется игра.'
+    st1 = Label(text=textwrap.fill(text1, width=60), justify='center', pady=10, font=("Arial", 14))
+    st1.pack()
+    text2 = 'Перед вами будет поле с 16 карточками, перевернутыми картинками вниз. Открывайте карточки попарно и запоминайте их расположение. Если картинки на них совпадают, карточки уходят из игры, если нет, карточки снова перевернутся. Игра закончится, когда вы найдете все пары.'
+    st2 = Label(text=textwrap.fill(text2, width=60), justify='center', pady=10, font=("Arial", 14))
+    st2.pack()
+    text3 = 'Развивайте свою память и старайтесь закончить за минимальное время и как можно меньшее количество ходов!'
+    st3 = Label(text=textwrap.fill(text3, width=60), justify='center', pady=10, font=("Arial", 14))
+    st3.pack()
+    text4 = 'Желаем удачи!'
+    st4 = Label(text=textwrap.fill(text4, width=60), justify='center', pady=10, font=("Arial", 14))
+    st4.pack()
+    style = ttk.Style()
+    style.configure("usual.TButton", font=("Arial", 14))
+    back = ttk.Button(text="Назад", command=main_page, style="usual.TButton")
+    back.pack(expand=True, fill=BOTH, padx=60, pady=50)
 
 
 def win():
     for widget in root.winfo_children():
         widget.destroy()
-    st = Label(text="пупупу все будет")
-    st.pack()
-    back = ttk.Button(text="Назад", command=main_page)
-    back.pack(expand=True, fill=BOTH, padx=60, pady=200)
+    best_time = Label(text="Лучшее время: *тут что-то будет*", font=("Arial", 14), pady=20)
+    best_time.pack()
+    best_score = Label(text="Лучший счёт: *тут что-то будет*", font=("Arial", 14), pady=20)
+    best_score.pack()
+    style = ttk.Style()
+    style.configure("usual.TButton", font=("Arial", 14))
+    back = ttk.Button(text="Назад", command=main_page, style="usual.TButton")
+    back.pack(expand=True, fill=BOTH, padx=60, pady=150)
 
 
 def out():
@@ -59,15 +78,17 @@ def main_page():
     for widget in root.winfo_children():
         widget.destroy()
 
-    label = Label(text="Добро пожаловать в Memory!")
+    label = Label(text="Добро пожаловать в Memory!", font=("Arial", 14))
     label.pack()
-    playing = ttk.Button(text="Играть", command=play)
+    style = ttk.Style()
+    style.configure("usual.TButton", font=("Arial", 14))
+    playing = ttk.Button(text="Играть", style="usual.TButton", command=play)
     playing.pack(expand=True, fill=BOTH, padx=60, pady=20)
-    rules = ttk.Button(text="Правила игры", command=rule)
+    rules = ttk.Button(text="Правила игры", style="usual.TButton", command=rule)
     rules.pack(expand=True, fill=BOTH, padx=60, pady=20)
-    record = ttk.Button(text="Мои рекорды", command=win)
+    record = ttk.Button(text="Мои рекорды", style="usual.TButton", command=win)
     record.pack(expand=True, fill=BOTH, padx=60, pady=20)
-    ex = ttk.Button(text="Выход", command=out)
+    ex = ttk.Button(text="Выход", style="usual.TButton", command=out)
     ex.pack(expand=True, fill=BOTH, padx=60, pady=20)
 
 
@@ -98,12 +119,13 @@ def game(world):
     for i in num_images:
         list_images.extend([ImageTk.PhotoImage(Image.open(f'photos/{world}/{world}_{i}.jpg'))]*2)
     button_image = ImageTk.PhotoImage(Image.open('photos/button image.png'))
+    para_image = ImageTk.PhotoImage(Image.open('photos/para image.png'))
 
     list_closed_cards = []
     num_opened_cards = 0
     num_steps = 0
     num_win = 0
-    label_kmoves = Label(text=f'Количество ходов: {num_steps}', font=('Arial', 12))
+    label_kmoves = Label(text=f'Количество ходов: {num_steps}', font=('Arial', 14))
     label_kmoves.pack(side=BOTTOM, pady=0.2)
 
     game_pole = Frame(root)
@@ -153,6 +175,7 @@ def game(world):
                         game_pole,
                         text=lbl_text,
                         background="#FFBBB9",
+                        font=('Arial', 12)
                         )
                     label.grid(
                         row=i,
@@ -173,6 +196,7 @@ def game(world):
                     game_pole,
                     text=but_text,
                     background="#FFBBB9",
+                    font=('Arial', 12),
                     command=but_com
                 )
                 button.grid(
@@ -198,7 +222,7 @@ def game(world):
     def pair():
         global list_closed_cards, first_opened, second_opened, num_win, label_2,\
             num_opened_cards, num_steps, label_kmoves, sw
-        label_2.config(text='Пара!', font=('Arial', 13), foreground='red')
+        label_2.config(text='Пара!', font=('Arial', 14), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
 
         def get_rgb(rgb):
@@ -207,16 +231,12 @@ def game(world):
         def closer():
             global first_opened, second_opened, label_win, sw
             first_opened.config(
-                image='',
+                image=para_image,
                 state="disabled",
-                background=get_rgb((174, 210, 227)),  # цвет
-                activebackground=get_rgb((174, 210, 227))
             )
             second_opened.config(
-                image='',
+                image=para_image,
                 state="disabled",
-                background=get_rgb((174, 210, 227)),
-                activebackground=get_rgb((174, 210, 227))
             )
             first_opened.found = True
             second_opened.found = True
@@ -242,7 +262,7 @@ def game(world):
         for i in list_closed_cards:
             i['image'] = button_image
             i.open = False
-        label_2.config(text='Не пара!', font=('Arial', 13), foreground='red')
+        label_2.config(text='Не пара!', font=('Arial', 14), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
 
     def open_card(event):
@@ -293,7 +313,7 @@ class StopWatch(Frame):
         self.makeWidgets()
 
     def makeWidgets(self):
-        l = ttk.Label(self, textvariable=self.timestr)
+        l = ttk.Label(self, textvariable=self.timestr, font=('Arial', 14))
         self._setTime(self._elapsedtime)
         l.pack(fill=X, expand=NO, pady=2, padx=2, anchor=CENTER)
 
