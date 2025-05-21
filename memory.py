@@ -7,6 +7,7 @@ import random
 import time
 import textwrap
 
+
 def play():
     for widget in root.winfo_children():
         widget.destroy()
@@ -60,14 +61,123 @@ def rule():
 def win():
     for widget in root.winfo_children():
         widget.destroy()
-    best_time = Label(text="Лучшее время: *тут что-то будет*", font=("Arial", 14), pady=20)
-    best_time.pack()
-    best_score = Label(text="Лучший счёт: *тут что-то будет*", font=("Arial", 14), pady=20)
-    best_score.pack()
+    global num_steps, time_sec, record
+
+    new_frame = Frame(root)
+    new_frame.pack(expand=True, fill=BOTH, padx=20, pady=20)
+
+    new_frame.grid_columnconfigure(0, weight=1)
+    new_frame.grid_rowconfigure(0, weight=2)
+    new_frame.grid_rowconfigure(1, weight=1)
+    new_frame.grid_rowconfigure(2, weight=1)
+    new_frame.grid_rowconfigure(3, weight=1)
+    new_frame.grid_rowconfigure(4, weight=1)
+    new_frame.grid_rowconfigure(5, weight=2)
+
+    if record == 1:
+        congrat = 'Поздравляем, вы побили рекорд!'
+    elif len(curr_records()['steps']) == 1:
+        congrat = 'Отличный результат!'
+    else:
+        congrat = 'Вы близки к цели!'
+
+    congrats = Label(new_frame, text=congrat, font=("Arial", 20), pady=20)
+    congrats.grid(row=0, column=0, sticky='nsew')
+    congrats.config(anchor='center')
+    if record == 0 or len(curr_records()['time']) == 1:
+        curr_time = Label(new_frame, text=f"Время: {time_conv(time_sec)}", font=("Arial", 14), pady=20)
+        curr_time.grid(row=1, column=0, sticky='nsew')
+        curr_time.config(anchor='center')
+    if len(curr_records()['time']) > 1:
+        best_time = Label(new_frame, text=f'Лучшее время: {time_conv(curr_records()['time'][0])}', font=("Arial", 14),
+                          pady=20)
+        best_time.grid(row=2, column=0, sticky='nsew')
+        best_time.config(anchor='center')
+    if record == 0 or len(curr_records()['steps']) == 1:
+        score = Label(new_frame, text=f'Количество ходов: {num_steps}', font=("Arial", 14), pady=20)
+        score.grid(row=3, column=0, sticky='nsew')
+        score.config(anchor='center')
+    if len(curr_records()['steps']) > 1:
+        best_score = Label(new_frame, text=f'Лучшее количество ходов: {curr_records()['steps'][0]}', font=("Arial", 14),
+                           pady=20)
+        best_score.grid(row=4, column=0, sticky='nsew')
+        best_score.config(anchor='center')
+
     style = ttk.Style()
     style.configure("usual.TButton", font=("Arial", 14))
-    back = ttk.Button(text="Назад", command=main_page, style="usual.TButton")
-    back.pack(expand=True, fill=BOTH, padx=60, pady=150)
+    back = ttk.Button(new_frame, text="Назад", command=main_page, style="usual.TButton")
+    back.grid(row=5, column=0, sticky='nsew')
+    back.config(anchor='center')
+
+
+def time_conv(full_sec):
+    minutes = int(full_sec / 60)
+    seconds = int(full_sec % 60)
+    return f"{minutes:02d}:{seconds:02d}"
+
+
+def rec_storage():
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    main_frame = Frame(root)
+    main_frame.pack(expand=True, fill=BOTH, padx=20, pady=20)
+
+    main_frame.grid_columnconfigure(0, weight=1)
+    main_frame.grid_columnconfigure(1, weight=1)
+    main_frame.grid_rowconfigure(0, weight=1)
+    main_frame.grid_rowconfigure(1, weight=2)
+    main_frame.grid_rowconfigure(2, weight=3)
+    main_frame.grid_rowconfigure(3, weight=1)
+
+    header = Label(main_frame, text='Мои рекорды', justify='center', font=("Arial", 14))
+    header.grid(row=0, column=0, columnspan=2, sticky='nsew')
+
+    t_head = Label(main_frame, text='Время', justify='center', font=("Arial", 14))
+    t_head.grid(row=1, column=0, sticky='nsew')
+    t_head.config(anchor='center')
+
+    s_head = Label(main_frame, text=f'Количество\nходов', justify='center', font=("Arial", 14))
+    s_head.grid(row=1, column=1, sticky='nsew')
+    s_head.config(anchor='center')
+
+    t_text = ''
+    s_text = ''
+
+    for i in range(len(curr_records()['time'])):
+        t_text += f'{i + 1}. {time_conv(curr_records()['time'][i])}\n'
+        # f'\n2. {time_conv(curr_records()['time'][1])}\n3. {time_conv(curr_records()['time'][2])}')
+    for j in range(len(curr_records()['steps'])):
+        s_text += f'{i + 1}. {curr_records()['steps'][j]}\n'
+        # 2. {curr_records()['steps'][1]}\n3. {curr_records()['steps'][2]}'
+
+    t_rec = Label(main_frame, text=t_text, justify='center', font=("Arial", 14))
+    t_rec.grid(row=2, column=0, sticky='new')
+    t_rec.config(anchor='center')
+
+    s_rec = Label(main_frame, text=s_text, justify='center', font=("Arial", 14))
+    s_rec.grid(row=2, column=1, sticky='new')
+    s_rec.config(anchor='center')
+
+    style = ttk.Style()
+    style.configure("usual.TButton", font=("Arial", 14))
+    back = ttk.Button(main_frame, text="Назад", command=main_page, style="usual.TButton")
+    back.grid(row=3, column=0, columnspan=2, sticky='nsew')
+
+
+def curr_records():
+    default = {'time': [0], 'steps': [0]}
+    try:
+        if not os.path.exists('records.txt') or os.stat('records.txt').st_size == 0:
+            with open('records.txt', 'w') as f:
+                f.write(str(default))
+            return default.copy()
+
+        with open('records.txt', 'r') as f:
+            content = f.read()
+            return eval(content) if content else default.copy()
+    except:
+        return default.copy()
 
 
 def out():
@@ -86,8 +196,9 @@ def main_page():
     playing.pack(expand=True, fill=BOTH, padx=60, pady=20)
     rules = ttk.Button(text="Правила игры", style="usual.TButton", command=rule)
     rules.pack(expand=True, fill=BOTH, padx=60, pady=20)
-    record = ttk.Button(text="Мои рекорды", style="usual.TButton", command=win)
-    record.pack(expand=True, fill=BOTH, padx=60, pady=20)
+    if 0 not in curr_records()['time']:
+        record = ttk.Button(text="Мои рекорды", style="usual.TButton", command=rec_storage)
+        record.pack(expand=True, fill=BOTH, padx=60, pady=20)
     ex = ttk.Button(text="Выход", style="usual.TButton", command=out)
     ex.pack(expand=True, fill=BOTH, padx=60, pady=20)
 
@@ -102,22 +213,23 @@ def playing_field(world):
             root.after(1000, count, number - 1)
         else:
             game(world)
+
     root.after(0, count)
 
 
 def game(world):
-    global num_opened_cards, list_closed_cards, first_opened, second_opened,\
+    global num_opened_cards, list_closed_cards, first_opened, second_opened, \
         num_win, label_2, num_steps, label_kmoves, root, label_win, sw
 
     for widget in root.winfo_children():
         widget.destroy()
-    root.geometry("600x500+300+50")
+    root.geometry("800x600+350+60")
     root.resizable(True, True)
 
-    num_images = random.sample(range(1, len(os.listdir(f'photos/{world}'))+1), 8)
+    num_images = random.sample(range(1, len(os.listdir(f'photos/{world}')) + 1), 8)
     list_images = []
     for i in num_images:
-        list_images.extend([ImageTk.PhotoImage(Image.open(f'photos/{world}/{world}_{i}.jpg'))]*2)
+        list_images.extend([ImageTk.PhotoImage(Image.open(f'photos/{world}/{world}_{i}.jpg'))] * 2)
     button_image = ImageTk.PhotoImage(Image.open('photos/button image.png'))
     para_image = ImageTk.PhotoImage(Image.open('photos/para image.png'))
 
@@ -169,14 +281,15 @@ def game(world):
                         pady=20,
                         sticky='nsew'
                     )
+
                 if i == 1:
-                    lbl_text = 'ЛУЧШЕЕ ВРЕМЯ:'
+                    lbl_text = f'ЛУЧШЕЕ ВРЕМЯ:\n{time_conv(curr_records()['time'][0])}'
                     label = Label(
                         game_pole,
                         text=lbl_text,
                         background="#FFBBB9",
-                        font=('Arial', 12)
-                        )
+                        font=('Arial', 11)
+                    )
                     label.grid(
                         row=i,
                         column=j - 1,
@@ -219,8 +332,9 @@ def game(world):
     label_2.pack(side=TOP)
 
     sw.Start()
+
     def pair():
-        global list_closed_cards, first_opened, second_opened, num_win, label_2,\
+        global list_closed_cards, first_opened, second_opened, num_win, label_2, \
             num_opened_cards, num_steps, label_kmoves, sw
         label_2.config(text='Пара!', font=('Arial', 14), foreground='red')
         root.after(1500, lambda: label_2.config(text=''))
@@ -254,10 +368,39 @@ def game(world):
                 )
                 label_win.place(relx=0.5, rely=0.5, anchor="center")
 
+                global time_sec
+                time_sec = sw._elapsedtime
+
+                global record
+                record = 0
+                dict_results = curr_records()
+                if 0 in dict_results['time']:
+                    dict_results['time'].remove(0)
+                if len(dict_results['time']) > 0 and time_sec < min(dict_results['time']):
+                    record = 1
+                dict_results['time'].append(time_sec)
+                dict_results['time'].sort()
+                if len(dict_results['time']) > 3:
+                    dict_results['time'].pop()
+                if 0 in dict_results['steps']:
+                    dict_results['steps'].remove(0)
+                if len(dict_results['steps']) > 0 and num_steps < min(dict_results['steps']):
+                    record = 1
+
+                dict_results['steps'].append(num_steps)
+                dict_results['steps'].sort()
+                if len(dict_results['steps']) > 3:
+                    dict_results['steps'].pop()
+
+                with open('records.txt', 'w', encoding='utf-8') as record_file_view:
+                    record_file_view.write(str(dict_results))
+
+                root.after(1500, win)
+
         root.after(100, closer)
 
     def not_pair():
-        global list_closed_cards, label_2, num_win, first_opened, second_opened,\
+        global list_closed_cards, label_2, num_win, first_opened, second_opened, \
             num_opened_cards, num_steps, label_kmoves, game_pole, sw
         for i in list_closed_cards:
             i['image'] = button_image
@@ -266,7 +409,7 @@ def game(world):
         root.after(1500, lambda: label_2.config(text=''))
 
     def open_card(event):
-        global num_opened_cards, first_opened, second_opened, list_closed_cards, list_found_pairs,\
+        global num_opened_cards, first_opened, second_opened, list_closed_cards, list_found_pairs, \
             num_steps, label_2, label_kmoves, game_pole, root, widget, sw
         if event.widget.open:
             return
@@ -313,9 +456,15 @@ class StopWatch(Frame):
         self.makeWidgets()
 
     def makeWidgets(self):
-        l = ttk.Label(self, textvariable=self.timestr, font=('Arial', 14))
+        l = ttk.Label(
+            self,
+            textvariable=self.timestr,
+            font=('Arial', 14),
+            anchor='center',
+            justify='center'
+        )
         self._setTime(self._elapsedtime)
-        l.pack(fill=X, expand=NO, pady=2, padx=2, anchor=CENTER)
+        l.pack(fill=BOTH, expand=True)
 
     def _update(self):
         self._elapsedtime = time.time() - self._start
@@ -363,6 +512,6 @@ def check():
 
 root = Tk()
 root.title("Memory")
-root.geometry("600x500")
+root.geometry("800x600+350+60")
 main_page()
 root.mainloop()
