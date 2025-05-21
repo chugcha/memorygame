@@ -1,7 +1,2 @@
-tkinker
 IPython.display
 PIL
-os
-random
-time
-textwrap
