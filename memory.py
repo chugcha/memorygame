@@ -382,11 +382,11 @@ def game(world):
                 dict_results['time'].sort()
                 if len(dict_results['time']) > 3:
                     dict_results['time'].pop()
+                    
                 if 0 in dict_results['steps']:
                     dict_results['steps'].remove(0)
                 if len(dict_results['steps']) > 0 and num_steps < min(dict_results['steps']):
                     record = 1
-
                 dict_results['steps'].append(num_steps)
                 dict_results['steps'].sort()
                 if len(dict_results['steps']) > 3:
